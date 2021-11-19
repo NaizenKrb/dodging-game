@@ -39,13 +39,13 @@ class Spaceship(pygame.sprite.Sprite):
         self.rect.centery = 700
             
     def update(self):
-        if self.rect.bottom + self.speed_v >= Settings.window_height:       # Läuft unten raus
+        if self.rect.bottom + self.speed_v >= Settings.window_height:           # Läuft unten raus
             self.rect.centery -= 10
             self.stopV()
-        elif self.rect.top - self.speed_v  <= 0:
+        elif self.rect.top - self.speed_v  <= 0:                                # Läuft oben raus
             self.rect.centery += 10
             self.stopV()
-        elif self.rect.left - self.speed_h >= 0:                           # Läuft links raus
+        elif self.rect.left - self.speed_h >= 0:                                # Läuft links raus
             self.rect.centerx -= 10
             self.stopH() 
         elif self.rect.right + self.speed_h >= Settings.window_width:           # Läuft rechts raus

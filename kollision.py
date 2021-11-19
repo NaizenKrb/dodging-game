@@ -39,17 +39,17 @@ class Spaceship(pygame.sprite.Sprite):
         self.rect.centery = 700
             
     def update(self):
-        if self.rect.bottom + self.speed_v >= Settings.window_height:           # Läuft unten raus
+        if self.rect.bottom + self.speed_v >= Settings.window_height and self.speed_v != 0:           # Läuft unten raus
             self.rect.centery -= 10
             self.stopV()
-        elif self.rect.top - self.speed_v  <= 0:                                # Läuft oben raus
+        elif self.rect.top - self.speed_v  <= 0 and self.speed_v != 0:                                # Läuft oben raus
             self.rect.centery += 10
             self.stopV()
-        elif self.rect.left - self.speed_h >= 0:                                # Läuft links raus
-            self.rect.centerx -= 10
-            self.stopH() 
-        elif self.rect.right + self.speed_h >= Settings.window_width:           # Läuft rechts raus
+        elif self.rect.left - self.speed_h <= 0 and self.speed_h != 0:                                # Läuft links raus
             self.rect.centerx += 10
+            self.stopH()
+        elif self.rect.right + self.speed_h >= Settings.window_width and self.speed_h != 0:           # Läuft rechts raus
+            self.rect.centerx -= 10
             self.stopH()    
         else: 
             self.rect.move_ip((self.speed_h, self.speed_v))
@@ -65,13 +65,21 @@ class Spaceship(pygame.sprite.Sprite):
     def down(self):
         self.speed_v = 3
     def up(self):
-            self.speed_v = -3
+        self.speed_v = -3
     def left(self):
         self.speed_h = -3
     def right(self):
         self.speed_h = 3
 
-
+class Asteroid(pygame.sprite.Sprite):
+    def __init__(self, picturefile) -> None:
+        super().__init__()
+        self.image = pygame.image.load(os.path.join(Settings.image_path, "asteroid.png")).convert_alpha()
+        self.rect = self.image.get_rect()
+     
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)   
+        
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self, filename1, filename2) -> None:
         super().__init__()
@@ -90,9 +98,6 @@ class Obstacle(pygame.sprite.Sprite):
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
-
-
-
 
 
 class Game(object):

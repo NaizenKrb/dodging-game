@@ -1,4 +1,4 @@
-from typing import Set
+from random import randint
 import pygame
 import os
 
@@ -10,6 +10,7 @@ class Settings(object):
     title = "Dodging Game"
     file_path = os.path.dirname(os.path.abspath(__file__))
     image_path = os.path.join(file_path, "images")
+    nof_asteroids = 3
 
 class Background(pygame.sprite.Sprite):
     def __init__(self) -> None:
@@ -24,7 +25,7 @@ class Spaceship(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load(os.path.join(Settings.image_path, picturefile)).convert_alpha()
         self.rect = self.image.get_rect()
-        self.image = pygame.transform.scale(self.image, (self.rect.width / 4, self.rect.height / 4) )
+        self.image = pygame.transform.scale(self.image, (self.rect.width / 6, self.rect.height / 6) )
         self.rect = self.image.get_rect()
         self.radius = self.rect.width // 2
         self.mask = pygame.mask.from_surface(self.image)
@@ -63,47 +64,32 @@ class Spaceship(pygame.sprite.Sprite):
         self.speed_h = 0
             
     def down(self):
-        self.speed_v = 3
+        self.speed_v = 4
     def up(self):
-        self.speed_v = -3
+        self.speed_v = -4
     def left(self):
-        self.speed_h = -3
+        self.speed_h = -4
     def right(self):
-        self.speed_h = 3
+        self.speed_h = 4
 
 class Asteroid(pygame.sprite.Sprite):
-    def __init__(self, picturefile) -> None:
+    def __init__(self) -> None:
         super().__init__()
         self.image = pygame.image.load(os.path.join(Settings.image_path, "asteroid.png")).convert_alpha()
         self.rect = self.image.get_rect()
-     
+        self.scale = randint(2,4)
+        self.image = pygame.transform.scale(self.image, (self.rect.width / self.scale, self.rect.height / self.scale) )
+        self.rect = self.image.get_rect()
+        
+    def fall(self):
+        self.speed = 
     def draw(self, screen):
         screen.blit(self.image, self.rect)   
-        
-class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, filename1, filename2) -> None:
-        super().__init__()
-        self.image_normal = pygame.image.load(os.path.join(Settings.image_path, filename1)).convert_alpha()
-        self.image_hit = pygame.image.load(os.path.join(Settings.image_path, filename2)).convert_alpha()
-        self.image = self.image_normal
-        self.rect = self.image.get_rect()
-        self.radius = self.rect.width // 2
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect.left = 300
-        self.rect.centery = Settings.window_height // 2
-        self.hit = False
-
-    def update(self):
-        self.image = self.image_hit if (self.hit) else self.image_normal
-
-    def draw(self, screen):
-        screen.blit(self.image, self.rect)
-
 
 class Game(object):
     def __init__(self) -> None:
         super().__init__()
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "10, 50"
+        os.environ['SDL_VIDEO_WINDOW_CENTERED'] = "10, 50"
         pygame.init()
         pygame.display.set_caption(Settings.title)
         self.font = pygame.font.Font(pygame.font.get_default_font(), 24)
@@ -111,23 +97,18 @@ class Game(object):
         self.screen = pygame.display.set_mode((Settings.window_width, Settings.window_height))
         self.clock = pygame.time.Clock()
         
+        
+        self.asteroids = pygame.sprite.Group()
+        for a in range(Settings.nof_asteroids):
+            self.asteroids.add(Asteroid())
+            
         self.background = Background()
         
-        self.brick = Obstacle("brick1.png", "brick2.png")
-        self.spaceship = Obstacle("raumschiff1.png", "raumschiff2.png")
-        self.alien = Obstacle("alienbig1.png", "alienbig2.png")
         self.spaceship = Spaceship("spaceship.png")
-
-        self.all_obstacles = pygame.sprite.Group()
-        self.all_obstacles.add(self.brick)
-        self.all_obstacles.add(self.spaceship)
-        self.all_obstacles.add(self.alien)
 
         self.running = False
             
     def run(self):
-        self.resize()
-
         self.running = True
         while self.running:
             self.clock.tick(60)
@@ -165,25 +146,14 @@ class Game(object):
 
     def update(self):
         self.spaceship.update()
-        self.all_obstacles.update()
 
     def draw(self):
         self.screen.fill((0, 0, 0))
         self.background.draw(self.screen)
-        self.all_obstacles.draw(self.screen)
         self.spaceship.draw(self.screen)
+        self.asteroids.draw(self.screen)
 
         pygame.display.flip()
-
-    def resize(self):
-        total_width = self.spaceship.rect.width
-        total_width += self.alien.rect.width
-        total_width += self.brick.rect.width
-
-        padding = (Settings.window_width - total_width) // 4
-        self.brick.rect.left = padding
-        self.spaceship.rect.left = self.brick.rect.right + padding
-        self.alien.rect.left = self.spaceship.rect.right + padding
 
 if __name__ == '__main__':
 

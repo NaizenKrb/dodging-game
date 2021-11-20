@@ -148,25 +148,17 @@ class Game(object):
         
     
     def incAsteroidspeed(self):
-        if self.points >= 5 and self.asteroid_speed == Settings.asteroid_default_speed:
-            self.asteroid_speed += 1
-            self.spawn_speed -= 10
-        if self.points >= 10 and self.asteroid_speed == Settings.asteroid_default_speed + 1:
-            self.asteroid_speed += 1
-            self.spawn_speed -= 10
-        if self.points >= 15 and self.asteroid_speed == Settings.asteroid_default_speed + 2:
-            self.asteroid_speed += 1
-            self.spawn_speed -= 10
-        if self.points >= 20 and self.asteroid_speed == Settings.asteroid_default_speed + 3:
-            self.asteroid_speed += 1
-            self.spawn_speed -= 10
-        if self.points >= 25 and self.asteroid_speed == Settings.asteroid_default_speed + 4:
-            self.asteroid_speed += 1
-            self.spawn_speed -= 10
-        if self.points == 30 and self.asteroid_speed == Settings.asteroid_default_speed + 5:
-            self.spawn_speed -= 10
-        if self.points == 35 and self.asteroid_speed == Settings.asteroid_default_speed + 5:
-            self.spawn_speed -= 10
+        speed = Settings.asteroid_default_speed + (self.points // 5)
+        if speed > 7:
+            speed = 7
+        else:
+            self.asteroid_speed = speed
+
+        spawn = Settings.default_spawn_speed - (self.points // 5) * 10
+        if spawn <= 90:
+            spawn = 90
+        else:
+            self.spawn_speed = spawn
             
     ## Resets all stats 
     def reset(self):

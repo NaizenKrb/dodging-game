@@ -1,8 +1,9 @@
+# imports various 
 from random import randint, uniform
 import pygame
 import os
 
-
+# class for the settings
 class Settings(object):
     window_width = 700
     window_height = 800
@@ -14,14 +15,17 @@ class Settings(object):
     asteroid_default_speed = 2
     default_lifes = 3
     
+# class for the Background
 class Background(pygame.sprite.Sprite):
     def __init__(self) -> None:
         self.image = pygame.image.load(os.path.join(Settings.image_path, "bg.png")).convert_alpha()
         self.image = pygame.transform.scale(self.image,(Settings.window_width, Settings.window_height))
         
+    # draws the background    
     def draw(self, screen):
         screen.blit(self.image, (0,0))
         
+# class for the Spaceship player model        
 class Spaceship(pygame.sprite.Sprite):
     def __init__(self, picturefile) -> None:
         super().__init__()
@@ -35,11 +39,13 @@ class Spaceship(pygame.sprite.Sprite):
         self.lifes = Settings.default_lifes
         self.stopV()
         self.stopH()
-         
+        
+    # puts the spaceship back to the initial position    
     def spaceshipInitialposition(self):
         self.rect.centerx = Settings.window_width / 2
         self.rect.centery = 700
-            
+    
+    # updates the movements and checks if the spaceship collides with the wall  
     def update(self):
         if self.rect.bottom + self.speed_v >= Settings.window_height and self.speed_v != 0:           # Move out of screen on the bottom
             self.rect.centery -= 10
@@ -66,7 +72,7 @@ class Spaceship(pygame.sprite.Sprite):
     def stopH(self):
         self.speed_h = 0
     
-    ##Movement        
+    #Movement        
     def down(self):
         self.speed_v = 4
     def up(self):
@@ -76,6 +82,7 @@ class Spaceship(pygame.sprite.Sprite):
     def right(self):
         self.speed_h = 4
 
+# class for the Asteroid's       
 class Asteroid(pygame.sprite.Sprite):
     def __init__(self,game) -> None:
         super().__init__()
@@ -87,7 +94,8 @@ class Asteroid(pygame.sprite.Sprite):
         self.speed = randint(1,game.asteroid_speed)
         self.rect.left = randint(0 ,Settings.window_width - self.rect.width)
         self.rect.bottom = 0 - self.rect.bottom
-
+    
+    #checks if a asteroid collides with the spaceship
     def collision(self):
         if pygame.sprite.spritecollide(self,game.spaceship, False, pygame.sprite.collide_mask):
             game.spaceship.sprite.lifes -= 1
@@ -96,22 +104,27 @@ class Asteroid(pygame.sprite.Sprite):
             game.spaceship.sprite.spaceshipInitialposition()
             game.asteroids.empty()
             
+    #checks if a asteroid has arrived at the bottom of the screen       
     def asteroid_arrived(self):
         if self.rect.top >= Settings.window_height:
             game.asteroids.remove(self)
             game.points += 1
-           
+    
+    #updates the asteroid(falling, if arrived, does collide)
     def update(self):
         self.rect.move_ip((0, self.speed))
         self.collision()
         self.asteroid_arrived()
-        
+    
+    #sets the speed of how fast the asteroid is falling
     def fall(self):
         self.speed = self.speed
-        
+    
+    #draws the asteroid
     def draw(self, screen):
         screen.blit(self.image, self.rect)   
 
+# class for the Game        
 class Game(object):
     def __init__(self) -> None:
         super().__init__()
@@ -146,7 +159,7 @@ class Game(object):
         self.spaceship.add(Spaceship("spaceship.png"))
 
         
-    
+    # increases the asteroid falling and spawning speed after every 5 points but has acceptable limit
     def incAsteroidspeed(self):
         speed = Settings.asteroid_default_speed + (self.points // 5)
         if speed > 7:
@@ -197,7 +210,8 @@ class Game(object):
         self.text_info2 = self.info_font.render(('Lifes: {0}'.format(self.spaceship.sprite.lifes)),1,(255,255,255))
         self.screen.blit(self.text_info1,(Settings.window_width/4 - self.text_info1.get_rect().right ,Settings.window_height - self.text_info1.get_rect().height))
         self.screen.blit(self.text_info2,(Settings.window_width/4 + self.text_info2.get_rect().right ,Settings.window_height - self.text_info1.get_rect().height))
-        
+    
+    #running method
     def run(self):
         self.running = True
         self.draw()
@@ -222,11 +236,13 @@ class Game(object):
 
             pygame.display.flip()
         pygame.quit()
-
+    
+    #Checks for events 
     def watch_for_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            #Checks for events if a key is pressed
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.running = False
@@ -245,6 +261,7 @@ class Game(object):
                     self.game_over = False
                 if self.start_screen and pygame.KEYDOWN:
                     self.start_screen = False
+            #Checks for events if a key is released        
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_DOWN:
                     self.spaceship.sprite.stopV()
@@ -262,12 +279,13 @@ class Game(object):
             self.counter = 0
             self.asteroids.add(Asteroid(self))
             
-            
+    # starts the update methods of the classes and updates the incAsteroidspeed        
     def update(self):
         self.spaceship.update()
         self.asteroids.update()
         self.incAsteroidspeed()
-
+        
+    # method for drawing the asteroid, spaceship and the info_overlay
     def draw(self):
         self.spaceship.draw(self.screen)
         self.asteroids.draw(self.screen)

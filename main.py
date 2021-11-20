@@ -97,7 +97,6 @@ class Asteroid(pygame.sprite.Sprite):
         if self.rect.top >= Settings.window_height:
             game.asteroids.remove(self)
             game.points += 1
-            print(game.points)
            
     def update(self):
         self.rect.move_ip((0, self.speed))
@@ -145,29 +144,22 @@ class Game(object):
         if self.points >= 5 and self.asteroid_speed == Settings.asteroid_default_speed:
             self.asteroid_speed += 1
             self.spawn_speed -= 10
-            print(self.asteroid_speed)
         if self.points >= 10 and self.asteroid_speed == Settings.asteroid_default_speed + 1:
             self.asteroid_speed += 1
             self.spawn_speed -= 10
-            print(self.asteroid_speed)
         if self.points >= 15 and self.asteroid_speed == Settings.asteroid_default_speed + 2:
             self.asteroid_speed += 1
             self.spawn_speed -= 10
-            print(self.asteroid_speed)
         if self.points >= 20 and self.asteroid_speed == Settings.asteroid_default_speed + 3:
             self.asteroid_speed += 1
             self.spawn_speed -= 10
-            print(self.asteroid_speed)
         if self.points >= 25 and self.asteroid_speed == Settings.asteroid_default_speed + 4:
             self.asteroid_speed += 1
             self.spawn_speed -= 10
-            print(self.asteroid_speed)
         if self.points == 30 and self.asteroid_speed == Settings.asteroid_default_speed + 5:
             self.spawn_speed -= 10
-            print(self.asteroid_speed)
         if self.points == 35 and self.asteroid_speed == Settings.asteroid_default_speed + 5:
             self.spawn_speed -= 10
-            print(self.asteroid_speed)
             
     def reset(self):
         self.points = 0

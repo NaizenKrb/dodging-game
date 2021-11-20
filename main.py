@@ -155,8 +155,8 @@ class Game(object):
             self.asteroid_speed = speed
 
         spawn = Settings.default_spawn_speed - (self.points // 5) * 10
-        if spawn <= 90:
-            spawn = 90
+        if spawn <= 50:
+            spawn = 50
         else:
             self.spawn_speed = spawn
             

@@ -215,7 +215,6 @@ class Game(object):
                 self.pause_screen()
             elif self.game_over:
                 self.death_screen()
-                self.reset()
             else:
                 self.update()
                 self.spawn()
@@ -242,6 +241,7 @@ class Game(object):
                 elif event.key == pygame.K_p:
                     self.pause = not self.pause
                 if self.game_over:
+                    self.reset()
                     self.game_over = False
                 if self.start_screen and pygame.KEYDOWN:
                     self.start_screen = False

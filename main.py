@@ -171,17 +171,16 @@ class Game(object):
     def start_menu(self):
         self.text_info = self.menu_font.render(('Press any button to start!'),1,(255,0,0))
         self.screen.blit(self.text_info,(Settings.window_width/2 - self.text_info.get_rect().width/2,Settings.window_height/2 - self.text_info.get_rect().height/2))
-        pygame.display.update()
         
     ## Pause Screen method    
     def pause_screen(self):
-        self.text_pause = self.menu_font.render(("Press P to unpause the game"),1,(255,0,0))
-        self.screen.blit(self.text_pause,(Settings.window_width/2 - self.text_pause.get_rect().width/2,Settings.window_height/2 - self.text_pause.get_rect().height/2))
+        self.draw()
         self.overlay = pygame.Surface((Settings.window_width,Settings.window_height))
         pygame.Surface.fill(self.overlay,(136,136,136))
-        self.overlay.set_alpha(3)
+        self.overlay.set_alpha(64) # Approx. 25%
+        self.text_pause = self.menu_font.render(("Press P to unpause the game"),1,(255,0,0))
+        self.screen.blit(self.text_pause,(Settings.window_width/2 - self.text_pause.get_rect().width/2,Settings.window_height/2 - self.text_pause.get_rect().height/2))
         self.screen.blit(self.overlay, self.overlay.get_rect())
-        pygame.display.update()
     
     ## Death Screen method      
     def death_screen(self):
@@ -191,7 +190,6 @@ class Game(object):
         self.screen.blit(self.text, (Settings.window_width/2 - self.text.get_rect().width/2, 100))
         self.screen.blit(self.text_points,(Settings.window_width/2 - self.text_points.get_rect().width/2,150))
         self.screen.blit(self.text_restart,(Settings.window_width/2 - self.text_restart.get_rect().width/2,250))
-        pygame.display.update()
         
     ## Info Overlay method  
     def info_overlay(self):
@@ -203,20 +201,26 @@ class Game(object):
     def run(self):
         self.running = True
         self.draw()
+
         while self.running:
+            self.screen.fill((255, 255, 255))
+            self.background.draw(self.screen)
+
             self.clock.tick(60)
             self.watch_for_events()
+
             if self.start_screen:
                 self.start_menu()
             elif self.pause:
                 self.pause_screen()
             elif self.game_over:
                 self.death_screen()
-                self.reset()
             else:
                 self.update()
                 self.spawn()
                 self.draw()
+
+            pygame.display.flip()
         pygame.quit()
 
     def watch_for_events(self):
@@ -237,6 +241,7 @@ class Game(object):
                 elif event.key == pygame.K_p:
                     self.pause = not self.pause
                 if self.game_over:
+                    self.reset()
                     self.game_over = False
                 if self.start_screen and pygame.KEYDOWN:
                     self.start_screen = False
@@ -264,12 +269,9 @@ class Game(object):
         self.incAsteroidspeed()
 
     def draw(self):
-        self.background.draw(self.screen)
         self.spaceship.draw(self.screen)
         self.asteroids.draw(self.screen)
         self.info_overlay()
-
-        pygame.display.flip()
 
 if __name__ == '__main__':
 

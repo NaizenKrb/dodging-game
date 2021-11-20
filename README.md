@@ -3,7 +3,7 @@
 ## Info
 
 - Done by Niclas Heide
-- Smaller Fixed done by Jan Ruhfus(@JanKrb)
+- Smaller fixes done by Jan Ruhfus(@JanKrb)
 
 ## Work order:
 

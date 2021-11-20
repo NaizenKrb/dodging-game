@@ -10,9 +10,9 @@ class Settings(object):
     title = "Dodging Game"
     file_path = os.path.dirname(os.path.abspath(__file__))
     image_path = os.path.join(file_path, "images")
-    default_spawn_speed = 120
+    default_spawn_speed = 110
     asteroid_default_speed = 2
-    default_lifes = 1
+    default_lifes = 3
     
 class Background(pygame.sprite.Sprite):
     def __init__(self) -> None:
@@ -41,29 +41,32 @@ class Spaceship(pygame.sprite.Sprite):
         self.rect.centery = 700
             
     def update(self):
-        if self.rect.bottom + self.speed_v >= Settings.window_height and self.speed_v != 0:           # Läuft unten raus
+        if self.rect.bottom + self.speed_v >= Settings.window_height and self.speed_v != 0:           # Move out of screen on the bottom
             self.rect.centery -= 10
             self.stopV()
-        elif self.rect.top - self.speed_v  <= 0 and self.speed_v != 0:                                # Läuft oben raus
+        elif self.rect.top - self.speed_v  <= 0 and self.speed_v != 0:                                # Move out of screen on the top
             self.rect.centery += 10
             self.stopV()
-        elif self.rect.left - self.speed_h <= 0 and self.speed_h != 0:                                # Läuft links raus
+        elif self.rect.left - self.speed_h <= 0 and self.speed_h != 0:                                # Move out of screen on the left
             self.rect.centerx += 10
             self.stopH()
-        elif self.rect.right + self.speed_h >= Settings.window_width and self.speed_h != 0:           # Läuft rechts raus
+        elif self.rect.right + self.speed_h >= Settings.window_width and self.speed_h != 0:           # Move out of screen on the right
             self.rect.centerx -= 10
             self.stopH()    
         else: 
             self.rect.move_ip((self.speed_h, self.speed_v))
-
+            
+    #Draws the Spaceship
     def draw(self, screen):
         screen.blit(self.image, self.rect)
-
+    
+    #Stops if Key is released
     def stopV(self):
         self.speed_v = 0
     def stopH(self):
         self.speed_h = 0
-            
+    
+    ##Movement        
     def down(self):
         self.speed_v = 4
     def up(self):
@@ -114,31 +117,35 @@ class Game(object):
         super().__init__()
         os.environ['SDL_VIDEO_WINDOW_CENTERED'] = "10, 50"
         pygame.init()
+        pygame.display.set_caption(Settings.title)
+        
         pygame.font.init()
         self.font_name = pygame.font.get_default_font()
         self.game_font = pygame.font.SysFont(self.font_name, 72)
         self.info_font = pygame.font.SysFont(self.font_name, 30)
         self.menu_font = pygame.font.SysFont(self.font_name, 40)
-        pygame.display.set_caption(Settings.title)
         self.font = pygame.font.Font(pygame.font.get_default_font(), 24)
+        
         self.screen = pygame.display.set_mode((Settings.window_width, Settings.window_height))
         self.clock = pygame.time.Clock()
+        
         self.pause = False
         self.start_screen = True
         self.game_over = False
+        self.running = False
+        
         self.points = 0
+        self.counter = 0
         
         self.asteroid_speed = Settings.asteroid_default_speed
-        self.counter = 0
         self.spawn_speed = Settings.default_spawn_speed
         
-        self.asteroids = pygame.sprite.Group()
-            
+        self.asteroids = pygame.sprite.Group()  
         self.background = Background()
         self.spaceship = pygame.sprite.GroupSingle()
         self.spaceship.add(Spaceship("spaceship.png"))
 
-        self.running = False
+        
     
     def incAsteroidspeed(self):
         if self.points >= 5 and self.asteroid_speed == Settings.asteroid_default_speed:
@@ -161,17 +168,20 @@ class Game(object):
         if self.points == 35 and self.asteroid_speed == Settings.asteroid_default_speed + 5:
             self.spawn_speed -= 10
             
+    ## Resets all stats 
     def reset(self):
         self.points = 0
         self.spaceship.sprite.lifes = Settings.default_lifes
         self.spawn_speed = Settings.default_spawn_speed
         self.asteroid_speed = Settings.asteroid_default_speed  
-    
+        
+    ## Start menu method
     def start_menu(self):
         self.text_info = self.menu_font.render(('Press any button to start!'),1,(255,0,0))
         self.screen.blit(self.text_info,(Settings.window_width/2 - self.text_info.get_rect().width/2,Settings.window_height/2 - self.text_info.get_rect().height/2))
         pygame.display.update()
         
+    ## Pause Screen method    
     def pause_screen(self):
         self.text_pause = self.menu_font.render(("Press P to unpause the game"),1,(255,0,0))
         self.screen.blit(self.text_pause,(Settings.window_width/2 - self.text_pause.get_rect().width/2,Settings.window_height/2 - self.text_pause.get_rect().height/2))
@@ -180,7 +190,8 @@ class Game(object):
         self.overlay.set_alpha(3)
         self.screen.blit(self.overlay, self.overlay.get_rect())
         pygame.display.update()
-        
+    
+    ## Death Screen method      
     def death_screen(self):
         self.text = self.game_font.render('GAME OVER', 1, (255, 0, 0))
         self.text_points = self.game_font.render(('Points: {0}'.format(self.points)),1,(255,0,0))
@@ -189,13 +200,13 @@ class Game(object):
         self.screen.blit(self.text_points,(Settings.window_width/2 - self.text_points.get_rect().width/2,150))
         self.screen.blit(self.text_restart,(Settings.window_width/2 - self.text_restart.get_rect().width/2,250))
         pygame.display.update()
-
+        
+    ## Info Overlay method  
     def info_overlay(self):
         self.text_info1 = self.info_font.render(('Points: {0}'.format(game.points)),1,(255,255,255))
         self.text_info2 = self.info_font.render(('Lifes: {0}'.format(self.spaceship.sprite.lifes)),1,(255,255,255))
         self.screen.blit(self.text_info1,(Settings.window_width/4 - self.text_info1.get_rect().right ,Settings.window_height - self.text_info1.get_rect().height))
         self.screen.blit(self.text_info2,(Settings.window_width/4 + self.text_info2.get_rect().right ,Settings.window_height - self.text_info1.get_rect().height))
-        
         
     def run(self):
         self.running = True
@@ -214,7 +225,6 @@ class Game(object):
                 self.update()
                 self.spawn()
                 self.draw()
-              
         pygame.quit()
 
     def watch_for_events(self):
@@ -248,6 +258,7 @@ class Game(object):
                 elif event.key == pygame.K_RIGHT:
                     self.spaceship.sprite.stopH()
 
+    # Adds asteroids depending on the spawn speed
     def spawn(self):
         self.counter += 1
         if self.counter >= self.spawn_speed:

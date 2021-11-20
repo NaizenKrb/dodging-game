@@ -12,7 +12,7 @@ class Settings(object):
     image_path = os.path.join(file_path, "images")
     default_spawn_speed = 120
     asteroid_default_speed = 2
-    default_lives = 1
+    default_lifes = 1
     
 class Background(pygame.sprite.Sprite):
     def __init__(self) -> None:
@@ -32,7 +32,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.centerx = Settings.window_width // 2
         self.rect.centery = 720
-        self.lives = Settings.default_lives
+        self.lifes = Settings.default_lifes
         self.stopV()
         self.stopH()
          
@@ -87,8 +87,8 @@ class Asteroid(pygame.sprite.Sprite):
 
     def collision(self):
         if pygame.sprite.spritecollide(self,game.spaceship, False, pygame.sprite.collide_mask):
-            game.spaceship.sprite.lives -= 1
-            if game.spaceship.sprite.lives <= 0:
+            game.spaceship.sprite.lifes -= 1
+            if game.spaceship.sprite.lifes <= 0:
                 game.game_over = True
             game.spaceship.sprite.spaceshipInitialposition()
             game.asteroids.empty()
@@ -119,7 +119,7 @@ class Game(object):
         self.font_name = pygame.font.get_default_font()
         self.game_font = pygame.font.SysFont(self.font_name, 72)
         self.info_font = pygame.font.SysFont(self.font_name, 30)
-        self.menu_font = pygame.font.SysFont(self.font_name, 36)
+        self.menu_font = pygame.font.SysFont(self.font_name, 40)
         pygame.display.set_caption(Settings.title)
         self.font = pygame.font.Font(pygame.font.get_default_font(), 24)
         self.screen = pygame.display.set_mode((Settings.window_width, Settings.window_height))
@@ -171,16 +171,18 @@ class Game(object):
             
     def reset(self):
         self.points = 0
-        self.spaceship.sprite.lives = Settings.default_lives
+        self.spaceship.sprite.lifes = Settings.default_lifes
         self.spawn_speed = Settings.default_spawn_speed
         self.asteroid_speed = Settings.asteroid_default_speed  
     
     def start_menu(self):
         self.text_info = self.menu_font.render(('Press any button to start!'),1,(255,0,0))
-        self.screen.blit(self.text_info,(80,150))
+        self.screen.blit(self.text_info,(Settings.window_width/2 - self.text_info.get_rect().width/2,Settings.window_height/2 - self.text_info.get_rect().height/2))
         pygame.display.update()
         
-    def pause_overlay(self):
+    def pause_screen(self):
+        self.text_pause = self.menu_font.render(("Press P to unpause the game"),1,(255,0,0))
+        self.screen.blit(self.text_pause,(Settings.window_width/2 - self.text_pause.get_rect().width/2,Settings.window_height/2 - self.text_pause.get_rect().height/2))
         self.overlay = pygame.Surface((Settings.window_width,Settings.window_height))
         pygame.Surface.fill(self.overlay,(136,136,136))
         self.overlay.set_alpha(3)
@@ -189,13 +191,20 @@ class Game(object):
         
     def death_screen(self):
         self.text = self.game_font.render('GAME OVER', 1, (255, 0, 0))
-        self.text_points = self.game_font.render(('Punkte: {0}'.format(self.points)),1,(255,0,0))
-        self.text_restart = self.info_font.render('Beliebige Taste drücken zum neustarten!',1,(255,255,255))
+        self.text_points = self.game_font.render(('Points: {0}'.format(self.points)),1,(255,0,0))
+        self.text_restart = self.info_font.render('Press any button to restart!',1,(255,255,255))
         self.screen.blit(self.text, (Settings.window_width/2 - self.text.get_rect().width/2, 100))
         self.screen.blit(self.text_points,(Settings.window_width/2 - self.text_points.get_rect().width/2,150))
         self.screen.blit(self.text_restart,(Settings.window_width/2 - self.text_restart.get_rect().width/2,250))
         pygame.display.update()
 
+    def info_overlay(self):
+        self.text_info1 = self.info_font.render(('Points: {0}'.format(game.points)),1,(255,255,255))
+        self.text_info2 = self.info_font.render(('Lifes: {0}'.format(self.spaceship.sprite.lifes)),1,(255,255,255))
+        self.screen.blit(self.text_info1,(Settings.window_width/4 - self.text_info1.get_rect().right ,Settings.window_height - self.text_info1.get_rect().height))
+        self.screen.blit(self.text_info2,(Settings.window_width/4 + self.text_info2.get_rect().right ,Settings.window_height - self.text_info1.get_rect().height))
+        
+        
     def run(self):
         self.running = True
         self.draw()
@@ -205,7 +214,7 @@ class Game(object):
             if self.start_screen:
                 self.start_menu()
             elif self.pause:
-                self.pause_overlay()
+                self.pause_screen()
             elif self.game_over:
                 self.death_screen()
                 self.reset()
@@ -253,22 +262,21 @@ class Game(object):
             self.counter = 0
             self.asteroids.add(Asteroid(self))
             
-    
             
     def update(self):
         self.spaceship.update()
         self.asteroids.update()
         self.incAsteroidspeed()
-        
 
     def draw(self):
         self.background.draw(self.screen)
         self.spaceship.draw(self.screen)
         self.asteroids.draw(self.screen)
+        self.info_overlay()
 
         pygame.display.flip()
 
 if __name__ == '__main__':
 
     game = Game()
-    game.run()
+    game.run() 

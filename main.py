@@ -31,7 +31,7 @@ class Spaceship(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.image.load(os.path.join(Settings.image_path, picturefile)).convert_alpha()
         self.rect = self.image.get_rect()
-        self.image = pygame.transform.scale(self.image, (self.rect.width / 6, self.rect.height / 6) )
+        self.image = pygame.transform.scale(self.image, (self.rect.width // 6, self.rect.height // 6) )
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.centerx = Settings.window_width // 2
@@ -294,4 +294,4 @@ class Game(object):
 if __name__ == '__main__':
 
     game = Game()
-    game.run() 
+    game.run()
